@@ -16,5 +16,5 @@ class TimeTracker(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE,blank=True,null=True,default=None)
     tags = models.ForeignKey(Tags, on_delete=models.CASCADE,blank=True,null=True,default=None)
     billable = models.BooleanField(default=False)
-    start_at = models.DateField()
-    end_at = models.DateField(blank=True,null=True,default=None)
+    start_at = models.DateTimeField()
+    end_at = models.DateTimeField(blank=True,null=True,default=None)
