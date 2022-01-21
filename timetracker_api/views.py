@@ -10,25 +10,30 @@ def time_tracker(request):
     # Add a new time entry
     if request.method == 'POST':
         start_at = datetime.datetime.now()
-        TimeTracker_instance: TimeTracker = TimeTracker(start_at=start_at)
+        TimeTracker_instance = TimeTracker(start_at=start_at)
         if 'description' in request.data:
-            TimeTracker_instance.description = request.data['description']
+            TimeTracker_instance.description = request.data['description']  # check data entry !!!
         # if 'project' in request.data:
         #     TimeTracker_instance.project = request.data['project']
         # if 'tags' in request.data:
         #     TimeTracker_instance.tags = request.data['tags']
         if 'billable' in request.data:
-            TimeTracker_instance.billable = request.data['billable']
+            TimeTracker_instance.billable = request.data['billable']  # check data entry !!!
+        if 'end_at' in request.data:
+            TimeTracker_instance.end_at = request.data['end_at']  # check data entry !!!
         TimeTracker_instance.save()
-        return Response({"message": "OK0"}, status=status.HTTP_200_OK)
+        return Response({"message": "OK"}, status=status.HTTP_200_OK)
 
     # Stop currently running timer
     if request.method == 'PATCH':
-        if 'TimeTracker_instance_id' in request.data:
-            TimeTracker_instance = TimeTracker.objects.get(id=request.data['TimeTracker_instance_id'])
-            print(TimeTracker_instance.description)
-            return Response({"message": "OK1"}, status=status.HTTP_200_OK)
+        if 'TimeTracker_id' in request.data:
+            TimeTracker_instance = TimeTracker.objects.get(id=request.data['TimeTracker_id'])  # check data entry !!!
+            TimeTracker_instance.end_at = datetime.datetime.now()
+            if 'end_at' in request.data:
+                TimeTracker_instance.end_at = request.data['end_at']  # check data entry !!!
+            TimeTracker_instance.save()
+            return Response({"message": "OK"}, status=status.HTTP_200_OK)
         else:
-            TimeTracker_instance = TimeTracker.objects.latest('id')
-            print(TimeTracker_instance.description)
-        return Response({"message": "OK2"}, status=status.HTTP_200_OK)
+            return Response({"message": "Currently running time entry was not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Update time entry
