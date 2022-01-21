@@ -12,9 +12,9 @@ class Tags(models.Model):
 
 
 class TimeTracker(models.Model):
-    description = models.CharField(max_length=300,blank=True)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE,blank=True)
-    tags = models.ForeignKey(Tags, on_delete=models.CASCADE,blank=True)
-    billable = models.BooleanField(default=False,blank=True)
+    description = models.CharField(max_length=300,blank=True,null=True,default=None)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE,blank=True,null=True,default=None)
+    tags = models.ForeignKey(Tags, on_delete=models.CASCADE,blank=True,null=True,default=None)
+    billable = models.BooleanField(default=False)
     start_at = models.DateField()
-    end_at = models.DateField(blank=True)
+    end_at = models.DateField(blank=True,null=True,default=None)
