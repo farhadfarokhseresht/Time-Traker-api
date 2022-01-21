@@ -5,7 +5,7 @@ from rest_framework import status
 import datetime
 
 
-@api_view(['POST'])
+@api_view(['POST','GET','PATCH','PUT','DELETE'])
 def start_time_tracker(request):
     start_at = datetime.datetime.now()
     TimeTracker_instance = TimeTracker(start_at=start_at)
@@ -23,5 +23,3 @@ def start_time_tracker(request):
 
     return Response({"message": "start_time_tracker id :{}".format(TimeTracker_instance.id)},status=status.HTTP_200_OK)
 
-def stop_time_tracker(request):
-    pass
