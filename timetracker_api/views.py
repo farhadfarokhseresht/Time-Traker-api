@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from timetracker_api.models import *
+from rest_framework import status
 import datetime
 
 
@@ -18,6 +19,6 @@ def start_time_tracker(request):
     if 'billable' in request.data:
         TimeTracker_instance.billable = request.data['billable']
 
-    print(TimeTracker_instance.billable)
+    TimeTracker_instance.save()
 
-    return Response({"message": start_at})
+    return Response({"message": "ok"},status=status.HTTP_200_OK)
