@@ -32,7 +32,7 @@ def time_tracker(request):
         else:
             return Response(serial.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # Get time entry
+    # Get all time entry
     if request.method == 'GET':
         obj = TimeTracker.objects.all()
         ser = TimeTracker_serializers(obj, many=True)
