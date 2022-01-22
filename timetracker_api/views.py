@@ -1,63 +1,72 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from timetracker_api.models import *
+from .models import *
 from rest_framework import status
 import datetime
+from .serializers import TimeTracker_serializers
 
 
-def TimeTracker_set(request, TimeTracker_instance):
+def data_set(request):
+    data = {}
     if 'start_at' in request.data:
-        TimeTracker_instance.start_at = request.data['start_at']  # check data entry !!!
+        data['start_at'] = request.data['start_at']
     if 'description' in request.data:
-        TimeTracker_instance.description = request.data['description']  # check data entry !!!
-    # if 'project' in request.data:
-    #     TimeTracker_instance.project = request.data['project']
-    # if 'tags' in request.data:
-    #     TimeTracker_instance.tags = request.data['tags']
+        data['description'] = request.data['description']
     if 'billable' in request.data:
-        TimeTracker_instance.billable = request.data['billable']  # check data entry !!!
+        data['billable'] = request.data['billable']
     if 'end_at' in request.data:
-        TimeTracker_instance.end_at = request.data['end_at']  # check data entry !!!
-    return TimeTracker_instance
+        data['end_at'] = request.data['end_at']
+
+    serial = TimeTracker_serializers(data=data)
+    return serial
 
 
-@api_view(['POST', 'GET', 'PATCH', 'PUT', 'DELETE'])
+@api_view(['POST', 'GET'])
 def time_tracker(request):
     # Add a new time entry
     if request.method == 'POST':
-        start_at = datetime.datetime.now()
-        TimeTracker_instance = TimeTracker(start_at=start_at)
-        TimeTracker_instance = TimeTracker_set(request, TimeTracker_instance)
-        TimeTracker_instance.save()
-        return Response({"message": "Add new time entry done successfully"}, status=status.HTTP_200_OK)
+        serial = data_set(request)
+        if serial.is_valid():
+            serial.save()
+            return Response(serial.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serial.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Get time entry
+    if request.method == 'GET':
+        obj = TimeTracker.objects.all()
+        ser = TimeTracker_serializers(obj, many=True)
+        return Response(ser.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'PATCH', 'PUT', 'DELETE'])
+def time_tracker_pk(request, pk):
+    try:
+        timeTracker_obj = TimeTracker.objects.get(pk=pk)
+    except:
+        return Response({"error": "Currently  time entry was not found !"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Get a specific time entry
+    if request.method == 'GET':
+        ser = TimeTracker_serializers(timeTracker_obj)
+        return Response(ser.data, status=status.HTTP_200_OK)
 
     # Stop currently running timer
-    if request.method == 'PATCH':
-        if 'TimeTracker_id' in request.data:
-            TimeTracker_instance = TimeTracker.objects.get(id=request.data['TimeTracker_id'])  # check data entry !!!
-            TimeTracker_instance.end_at = datetime.datetime.now()
-            if 'end_at' in request.data:
-                TimeTracker_instance.end_at = request.data['end_at']  # check data entry !!!
-            TimeTracker_instance.save()
-            return Response({"message": "Stop currently running timer done successfully"}, status=status.HTTP_200_OK)
-        else:
-            return Response({"message": "Currently running time entry was not found"}, status=status.HTTP_404_NOT_FOUND)
+    elif request.method == 'PATCH':
+        timeTracker_obj.end_at = datetime.datetime.now()
+        timeTracker_obj.save()
+        return Response("ok",status=status.HTTP_200_OK)
 
     # Update time entry
-    if request.method == 'PUT':
-        if 'TimeTracker_id' in request.data:
-            TimeTracker_instance = TimeTracker.objects.get(id=request.data['TimeTracker_id'])  # check data entry !!!
-            TimeTracker_instance = TimeTracker_set(request, TimeTracker_instance)
-            TimeTracker_instance.save()
-            return Response({"message": "Update time entry done successfully"}, status=status.HTTP_200_OK)
+    elif request.method == 'PUT':
+        ser = TimeTracker_serializers(timeTracker_obj, data=request.data)
+        if ser.is_valid():
+            ser.save()
+            return Response(ser.data, status=status.HTTP_200_OK)
         else:
-            return Response({"message": "Currently time entry was not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Delete time entry
-    if request.method == 'DELETE ':
-        if 'TimeTracker_id' in request.data:
-            TimeTracker_instance = TimeTracker.objects.get(id=request.data['TimeTracker_id'])  # check data entry !!!
-            TimeTracker_instance.delete()
-            return Response({"message": "Delete time entry done successfully"}, status=status.HTTP_200_OK)
-        else:
-            return Response({"message": "Time entry with given ID doesn't exist or doesn't belong"}, status=status.HTTP_404_NOT_FOUND)
+    elif request.method == 'DELETE':
+        timeTracker_obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
