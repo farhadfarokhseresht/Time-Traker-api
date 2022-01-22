@@ -72,7 +72,7 @@ Update time entry with id = pk
 ```
 ## Installation
 
-Dillinger requires Python 3 to run.
+Requires Python 3 to run.
 
 open CMD , go to your dir and type
 ```sh
