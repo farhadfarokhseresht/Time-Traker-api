@@ -7,7 +7,7 @@ from .serializers import TimeTracker_serializers
 from rest_framework import viewsets
 
 
-class  TimeTrackerViewSet(viewsets.ModelViewSet):
+class  time_trackerViewSet(viewsets.ModelViewSet):
     queryset = TimeTracker.objects.all()
     serializer_class = TimeTracker_serializers
     http_method_names = ['get', 'post', 'put', 'delete']
